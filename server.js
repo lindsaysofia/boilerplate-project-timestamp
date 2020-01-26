@@ -26,10 +26,22 @@ app.get("/api/hello", function (req, res) {
 
 // date string
 app.get('/api/timestamp/:date_string?', (req, res) => {
-  res.send({unix: req.params.date_string, utc: 'date.toUTCString()'});
-})
-
-
+  let date;
+  let dateParam = req.params.date_string;
+  if (dateParam === undefined) {
+    date = new Date();
+  } else {
+    // if format is YYYY-MM-DD we want to pass as string. Otherwise pass as number.
+    date = dateParam.includes('-') ? new Date(dateParam) : new Date(parseInt(dateParam));
+  }
+  let getTime = date.getTime();
+  let utcString = date.toUTCString();
+  if (Number.isNaN(getTime)) {
+    res.send({error: utcString});
+  } else {
+    res.send({unix: date.getTime(), utc: utcString});
+  }
+});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
